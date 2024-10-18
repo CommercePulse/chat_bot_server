@@ -1,4 +1,6 @@
 
+UPLOAD_DIR = "./upload"
+PRIMARY_FOLDER = "uploaded-file"
 class Config:
     BASE_URL =""
     OPENAI_API_KEY=""

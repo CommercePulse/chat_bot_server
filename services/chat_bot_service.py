@@ -37,16 +37,16 @@ class ChatBot:
          
         if len(files):
             for file in files: 
-                save_uploaded_file(file, namespace_id)
+                # save_uploaded_file(file, namespace_id)
                 file_instance = BotNamespaceFiles(
                        name=file.filename,
                        namespace_id=namespace_id,
                        size=file.size,  
                         )
         
-                await self.botNamespaceQueries.execute_create_command(file_instance)
+                # await self.botNamespaceQueries.execute_create_command(file_instance)
                 backgroundTasks.add_task(self.pineconeService.vectorize_documents_main,namespace_id)
-
+                # await self.pineconeService.vectorize_documents_main(namespace_id)
 
         return success(f"Total {len(files)} files uploaded successfully!")
     

@@ -13,6 +13,7 @@ langchain-core==0.1.52
 langchain==0.1.20
 pinecone-client==3.2.2
 python-multipart==0.0.12
+Mangum==0.19.0
 
 
 
