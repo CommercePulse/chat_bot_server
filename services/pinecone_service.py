@@ -160,7 +160,7 @@ class PineconeService:
         prompt_template = ChatPromptTemplate.from_template(template)
 
         vectorstore = PineconeVectorStore(
-            index=index, embedding=embed_model, text_key=os.getenv('PINECONE_TEXT_FIELD'), namespace=namespace_id
+            index=index, embedding=embed_model, text_key=os.getenv('PINECONE_TEXT_FIELD'), namespace=namespace_id, k=10
         ) 
 
         retrieved_data = vectorstore.as_retriever().invoke(question)
