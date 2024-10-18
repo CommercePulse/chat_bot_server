@@ -9,8 +9,7 @@ from models.creation import TableCreation
 app = FastAPI(swagger_ui_parameters={"displayRequestDuration": True})
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[ "http://localhost",
-    "http://localhost:4200"],
+    allow_origins=["*"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
