@@ -67,7 +67,7 @@ class ChatBot:
 
             chatHistory = ""
             for chat in data.chatHistory:
-                chatHistory += f"User: {chat['user']}\nAI: {chat['Ai_response']}\n"
+                chatHistory += f"User: {chat['question']}\nAI: {chat['Ai_response']}\n"
 
             return StreamingResponse(self.pineconeService.chain_resp(namespace_id,question,chatHistory), media_type="text/event-stream")
     
