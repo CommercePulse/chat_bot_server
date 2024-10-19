@@ -160,10 +160,11 @@ class PineconeService:
         prompt_template = ChatPromptTemplate.from_template(template)
 
         vectorstore = PineconeVectorStore(
-            index=index, embedding=embed_model, text_key=os.getenv('PINECONE_TEXT_FIELD'), namespace=namespace_id, k=10
+            index=index, embedding=embed_model, text_key=os.getenv('PINECONE_TEXT_FIELD'), namespace=namespace_id
         ) 
 
-        retrieved_data = vectorstore.as_retriever().invoke(question)
+        # retrieved_data = vectorstore.as_retriever().invoke(question)
+        retrieved_data = vectorstore.similarity_search(question,namespace=namespace_id, k=10)
         
         # Create an empty string to hold the combined page contents
         fileContent = ""
