@@ -13,7 +13,7 @@ env/
 
 *.DS_Store
 
-dist/
+
 build/
 bot_namespace.db
 upload/*

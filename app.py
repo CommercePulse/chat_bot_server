@@ -4,9 +4,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from routers import chat_bot
 # from mangum import Mangum
 from config.sqlite  import init_db
+from fastapi.staticfiles import StaticFiles
 from utils.exception import CustomExceptionHandler
 from models.creation import TableCreation
 app = FastAPI(swagger_ui_parameters={"displayRequestDuration": True})
+app.mount("/", StaticFiles(directory="dist", html=True), name="dist")
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
