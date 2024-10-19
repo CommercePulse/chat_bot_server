@@ -16,3 +16,4 @@ env/
 dist/
 build/
 bot_namespace.db
+upload/*
