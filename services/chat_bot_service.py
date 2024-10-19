@@ -62,12 +62,12 @@ class ChatBot:
             question = data.question
             namespace_id = data.namespace_id
               
-            if isinstance(data.chatHistory, str):
-               data.chatHistory = json.loads(data.chatHistory.replace("'", '"')) 
+            # if isinstance(data.chatHistory, str):
+            #    data.chatHistory = json.loads(data.chatHistory.replace("'", '"')) 
 
             chatHistory = ""
             for chat in data.chatHistory:
-                chatHistory += f"AI: {chat['Ai_response']}\nUser: {chat['question']}\n"
+                chatHistory += f"User: {chat['user']}\nAI: {chat['Ai_response']}\n"
 
             return StreamingResponse(self.pineconeService.chain_resp(namespace_id,question,chatHistory), media_type="text/event-stream")
     

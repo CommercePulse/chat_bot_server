@@ -7,13 +7,15 @@ class DeleteFileDTO(BaseModel):
     ids: List[int] = None
     names:List[str] = None
 
+class conversation(BaseModel): 
+    user: str
+    Ai_response: str  
+    
 class ChatRequest(BaseModel): 
     question: str
     namespace_id: str    
-    chatHistory:str 
+    chatHistory:List[conversation] 
 
- 
-    
 class Action(str,Enum):
     PULL = "PULL"
     STOP = "STOP"
