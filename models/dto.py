@@ -8,7 +8,7 @@ class DeleteFileDTO(BaseModel):
     names:List[str] = None
 
 class conversation(BaseModel): 
-    user: str
+    question: str
     Ai_response: str  
     
 class ChatRequest(BaseModel): 
