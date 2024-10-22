@@ -1,7 +1,7 @@
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain_community.document_loaders import PyMuPDFLoader
 from langchain_community.document_loaders import PyPDFLoader
-
+import re
 
 def parse_pdf(file_path: str) -> list:
     # loader = PyPDFLoader(file_path)
@@ -21,7 +21,8 @@ def parse_pdf(file_path: str) -> list:
     
     loader = PyMuPDFLoader(file_path)
     documents = loader.load()
-    file_name = file_path.split("\\")[-1]
+    # file_name = file_path.split("\\")[-1]
+    file_name = re.search(r'[^/]+$', file_path).group(0)
     for idx, text in enumerate(documents):
                 documents[idx].metadata['name']=file_name
                 documents[idx].metadata['type']='pdf'

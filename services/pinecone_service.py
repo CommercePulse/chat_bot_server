@@ -57,13 +57,10 @@ class PineconeService:
                     elif file_ext == 'pdf':
                         documents[namespace_id].extend(parse_pdf(file_path))
 
-                    # shutil.move(file_path, os.path.join(processed_dir, file))
                     os.remove(file_path)
 
-            # pinecone_namespace = f"ns_{namespace_id}"
             pinecone_namespace = namespace_id
 
-            # print('documents.items()---',documents.items())
             
             for key, val in documents.items(): 
                 vectorstore_from_docs_faq = PineconeVectorStore.from_documents(
@@ -78,7 +75,7 @@ class PineconeService:
      
   
     @handleExceptions
-    def delete_vectorized_docs(self, namespace_id: str, key: str, values: list[str]):
+    async def delete_vectorized_docs(self, namespace_id: str, key: str, values: list[str]):
         index = pc.Index(os.getenv('PINECONE_INDEX'))   
         filter_condition = {key: {"$in": values}}
         response = index.delete(delete_all=False, namespace=namespace_id, filter=filter_condition)
@@ -150,10 +147,18 @@ class PineconeService:
     async def chain_resp(self,namespace_id: str,question: str, chatHistory: str):
         # Define the prompt template with placeholders for question, chatHistory, and file
         print("inside chain resp ---")
-        template = """Answer the question based only on the following context:
+        template = """Answer only based on the provided document content and chat history. Do not use external sources like Google or any other database. If the document contains relevant information, answer strictly based on that information. If the document does not contain an answer to the question, respond with 'There is no answer to your question in the document.' If the question is irrelevant to the document or cannot be answered based on the document, respond with 'Irrelevant question.'
+
+        Refer to the chat history only for context if needed, not for factual information
+        
         File Content: {fileContent}
         Chat History: {chatHistory}
         question: {question}
+        
+        I have a document where each paragraph includes a specific page number and file name. When answering my question, please ensure that the answer references the corresponding page number and file name from the document you are using. Here's the structure of the data:
+
+        For More Reference See Page Number: X in File Name: Y <Paragraph>
+        Based on this, please answer my question with specific references to the source.
         """
         index = pc.Index(os.getenv('PINECONE_INDEX'))
         # Create the prompt template
@@ -171,24 +176,27 @@ class PineconeService:
 
         # Iterate through each document and append its page_content to the combined string
         for doc in retrieved_data:
-            fileContent += doc.page_content.strip() + "\n" 
+            fileContent += f"{doc.page_content.strip()} \n Page No :{doc.metadata['page']} \n File Name : {doc.metadata['name']}" 
 
         print("fileContent--",fileContent)
-        # Initialize the OpenAI model with environment variables or default values
-        llm = ChatOpenAI(
-            model_name=os.getenv('MODEL'),
-            temperature=os.getenv('TEMPERATURE'),
-            # Default temperature if not set
-        )
+        if fileContent is None:
+            yield "There is no answer to your question in the document."
+        else:   
+            # Initialize the OpenAI model with environment variables or default values
+            llm = ChatOpenAI(
+                model_name=os.getenv('MODEL'),
+                temperature=os.getenv('TEMPERATURE'),
+                # Default temperature if not set
+            )
 
-        # Create an LLM chain with the prompt, LLM, and output parser
-        prompt =  prompt_template.format(question=question,chatHistory=chatHistory,fileContent = fileContent)
-        
-        print("Request Send To ChatGPT  ::",prompt)
-        chain = llm | StrOutputParser()
+            # Create an LLM chain with the prompt, LLM, and output parser
+            prompt =  prompt_template.format(question=question,chatHistory=chatHistory,fileContent = fileContent)
+            
+            print("Request Send To ChatGPT  ::",prompt)
+            chain = llm | StrOutputParser()
 
-        for chunk in chain.stream(prompt):
-                yield chunk 
+            for chunk in chain.stream(prompt):
+                    yield chunk 
   
 
       
