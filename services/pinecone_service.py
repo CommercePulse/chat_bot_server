@@ -159,6 +159,7 @@ class PineconeService:
 
         For More Reference See Page Number: X in File Name: Y <Paragraph>
         Based on this, please answer my question with specific references to the source.
+        Please provide a clear and well-structured response to the question without using any code blocks, markdown, or technical formatting.
         """
         index = pc.Index(os.getenv('PINECONE_INDEX'))
         # Create the prompt template
