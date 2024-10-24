@@ -145,22 +145,52 @@ class PineconeService:
         return agent
 
     async def chain_resp(self,namespace_id: str,question: str, chatHistory: str):
-        # Define the prompt template with placeholders for question, chatHistory, and file
         print("inside chain resp ---")
-        template = """Answer only based on the provided document content and chat history. Do not use external sources like Google or any other database. If the document contains relevant information, answer strictly based on that information. If the document does not contain an answer to the question, respond with 'There is no answer to your question in the document.' If the question is irrelevant to the document or cannot be answered based on the document, respond with 'Irrelevant question.'
+        # template = """Answer only based on the provided document content and chat history. Do not use external sources like Google or any other database. If the document contains relevant information, answer strictly based on that information. If the document does not contain an answer to the question, respond with 'There is no answer to your question in the document.' If the question is irrelevant to the document or cannot be answered based on the document, respond with 'Irrelevant question.'
 
-        Refer to the chat history only for context if needed, not for factual information
+        # Refer to the chat history only for context if needed, not for factual information
         
+        # File Content: {fileContent}
+        # Chat History: {chatHistory}
+        # question: {question}
+        
+        # I have a document where each paragraph includes a specific page number and file name. When answering my question, please ensure that the answer references the corresponding page number and file name from the document you are using. Here's the structure of the data:
+
+        # For More Reference See Page Number: X in File Name: Y <Paragraph>
+        # Based on this, please answer my question with specific references to the source.
+        # Format the text response based on the language detected. If the language is Arabic or any other right-to-left language, ensure the text is displayed in a right-to-left format with proper alignment. If the language is English or another left-to-right language, ensure the text follows a left-to-right format. Consider appropriate punctuation, alignment, and spacing based on the direction of the text.
+        # """
+        
+        template = """Answer the user's question based on the provided document content.However, respond to general conversational cues (like greetings, follow-ups, or small talk) interactively. For example, respond to greetings (e.g., "Hi," "Hello","Help Me Out") with an appropriate greeting in return, or engage in follow-up questions with a conversational tone.
+
+        Input:
+
         File Content: {fileContent}
         Chat History: {chatHistory}
-        question: {question}
+        Question: {question}
         
-        I have a document where each paragraph includes a specific page number and file name. When answering my question, please ensure that the answer references the corresponding page number and file name from the document you are using. Here's the structure of the data:
+        Additional Guidelines:
 
-        For More Reference See Page Number: X in File Name: Y <Paragraph>
-        Based on this, please answer my question with specific references to the source.
-        Please provide a clear and well-structured response to the question without using any code blocks, markdown, or technical formatting.
+        1. Chat History for Relevance: Use the chat history to evaluate the relevance of the question, but not for factual information.
+        
+        2. citing relevant sections with page numbers and file names in the following structure:provide the below line in the language of question
+        
+        For More Reference See Page Number: X in File Name: Y <Paragraph>.
+        
+        Stickily do this Translate this citation line into the same language as the question (e.g.,Arabic for Arabic, French for French, English for English). 
+        
+        3. Ensure the response follows the correct text direction and formatting based on the language:
+        Right-to-left formatting for languages like Arabic(if there is list number should be right to left).
+        Left-to-right formatting for languages like English or French.
+       .
         """
+        
+        # template="""Input:
+        # File Content: {fileContent}
+        # Chat History: {chatHistory}
+        # Question: {question}
+        
+        # As we know in Arabic we write from right to left so format your answer in that way"""
         index = pc.Index(os.getenv('PINECONE_INDEX'))
         # Create the prompt template
         prompt_template = ChatPromptTemplate.from_template(template)
@@ -170,16 +200,17 @@ class PineconeService:
         ) 
 
         # retrieved_data = vectorstore.as_retriever().invoke(question)
-        retrieved_data = vectorstore.similarity_search(question,namespace=namespace_id, k=10)
+        retrieved_data = vectorstore.similarity_search(question,namespace=namespace_id, k=20)
         
         # Create an empty string to hold the combined page contents
         fileContent = ""
 
         # Iterate through each document and append its page_content to the combined string
         for doc in retrieved_data:
+            # print("doc----",doc)
             fileContent += f"{doc.page_content.strip()} \n Page No :{doc.metadata['page']} \n File Name : {doc.metadata['name']}" 
 
-        print("fileContent--",fileContent)
+        # print("fileContent--",fileContent)
         if fileContent is None:
             yield "There is no answer to your question in the document."
         else:   
@@ -197,6 +228,7 @@ class PineconeService:
             chain = llm | StrOutputParser()
 
             for chunk in chain.stream(prompt):
+                    # print("chunk---",chunk)
                     yield chunk 
   
 
