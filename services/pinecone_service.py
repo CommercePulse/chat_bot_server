@@ -161,6 +161,8 @@ class PineconeService:
         # Format the text response based on the language detected. If the language is Arabic or any other right-to-left language, ensure the text is displayed in a right-to-left format with proper alignment. If the language is English or another left-to-right language, ensure the text follows a left-to-right format. Consider appropriate punctuation, alignment, and spacing based on the direction of the text.
         # """
         
+        # deployed one
+        
     #     template = """Answer the user's question based on the provided document content.However, respond to general conversational cues (like greetings, follow-ups, or small talk) interactively. For example, respond to greetings (e.g., "Hi," "Hello","Help Me Out") with an appropriate greeting in return, or engage in follow-up questions with a conversational tone.
 
     #     Input:
