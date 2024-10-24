@@ -161,36 +161,82 @@ class PineconeService:
         # Format the text response based on the language detected. If the language is Arabic or any other right-to-left language, ensure the text is displayed in a right-to-left format with proper alignment. If the language is English or another left-to-right language, ensure the text follows a left-to-right format. Consider appropriate punctuation, alignment, and spacing based on the direction of the text.
         # """
         
-        template = """Answer the user's question based on the provided document content.However, respond to general conversational cues (like greetings, follow-ups, or small talk) interactively. For example, respond to greetings (e.g., "Hi," "Hello","Help Me Out") with an appropriate greeting in return, or engage in follow-up questions with a conversational tone.
+    #     template = """Answer the user's question based on the provided document content.However, respond to general conversational cues (like greetings, follow-ups, or small talk) interactively. For example, respond to greetings (e.g., "Hi," "Hello","Help Me Out") with an appropriate greeting in return, or engage in follow-up questions with a conversational tone.
 
-        Input:
+    #     Input:
 
-        File Content: {fileContent}
-        Chat History: {chatHistory}
-        Question: {question}
+    #     File Content: {fileContent}
+    #     Chat History: {chatHistory}
+    #     Question: {question}
         
-        Additional Guidelines:
+    #     Additional Guidelines:
 
-        1. Chat History for Relevance: Use the chat history to evaluate the relevance of the question, but not for factual information.
+    #     1. Chat History for Relevance: Use the chat history to evaluate the relevance of the question, but not for factual information.
         
-        2. citing relevant sections with page numbers and file names in the following structure:provide the below line in the language of question
+    #     2. citing relevant sections with page numbers and file names in the following structure:provide the below line in the language of question
         
-        For More Reference See Page Number: X in File Name: Y <Paragraph>.
+    #     For More Reference See Page Number: X in File Name: Y <Paragraph>.
         
-        Stickily do this Translate this citation line into the same language as the question (e.g.,Arabic for Arabic, French for French, English for English). 
+    #     Stickily do this Translate this citation line into the same language as the question (e.g.,Arabic for Arabic, French for French, English for English). 
         
-        3. Ensure the response follows the correct text direction and formatting based on the language:
-        Right-to-left formatting for languages like Arabic(if there is list number should be right to left).
-        Left-to-right formatting for languages like English or French.
-       .
-        """
+    #     3. Ensure the response follows the correct text direction and formatting based on the language:
+    #     Right-to-left formatting for languages like Arabic(if there is list number should be right to left).
+    #     Left-to-right formatting for languages like English or French.
+    #    .
+    #     """
         
-        # template="""Input:
+       
+        # template = """Answer the user's question based on the provided document content. Respond to general conversational cues (like greetings, follow-ups, or small talk) interactively without referencing the document. For example, respond to greetings (e.g., "Hi," "Hello", "Help Me Out") with an appropriate greeting in return, or engage in follow-up questions with a conversational tone.
+
+        # Input:
+
         # File Content: {fileContent}
         # Chat History: {chatHistory}
         # Question: {question}
         
-        # As we know in Arabic we write from right to left so format your answer in that way"""
+        # Additional Guidelines:
+
+        # 1. Chat History for Relevance: Use the chat history to evaluate the relevance of the question. **If and only if** the question relates to the content of the document, provide relevant references by citing sections with page numbers and file names in the following structure:
+
+        #     For More Reference See Page Number: X in File Name: Y <Paragraph>.
+
+        # 2. .**Translate this citation line And Response into the same language as the question (e.g., Arabic for Arabic, French for French, English for English).**.
+
+        # 3. Ensure the response follows the correct text direction and formatting based on the language:
+        #     - Right-to-left formatting for languages like Arabic (if there is a list, number it right-to-left).
+        #     - Left-to-right formatting for languages like English or French.
+
+        # 4. **If the question does not relate to the document, do not provide any citation**."""
+
+        template = """Answer the user's question based on the provided document content. Respond to general conversational cues (like greetings, follow-ups, or small talk) interactively without referencing the document. For example, respond to greetings (e.g., "Hi," "Hello", "Help Me Out") with an appropriate greeting in return, or engage in follow-up questions with a conversational tone.
+
+            Input:
+
+            File Content: {fileContent}
+            Chat History: {chatHistory}
+            Question: {question}
+            
+            Additional Guidelines:
+
+            1. Chat History for Relevance: Use the chat history to evaluate the relevance of the question. **If and only if** the question relates to the content of the document, provide relevant references by citing sections with page numbers and file names in the following structure:
+
+                For More Reference, See Page Number: X in File Name: Y <Paragraph>.
+
+            2. If the user is not specific, or multiple references are relevant for the single answer, provide one appropriate answer, but list all relevant references, formatted as:
+
+                For More Reference:
+                - See Page Number: X in File Name: Y <Paragraph>.
+                - See Page Number: Z in File Name: W <Paragraph>.
+
+            3. Translate this citation line and response into the same language as the question (e.g., Arabic for Arabic, French for French, English for English).
+
+            4. Ensure the response follows the correct text direction and formatting based on the language:
+                - Right-to-left formatting for languages like Arabic (if there is a list, number it right-to-left).
+                - Left-to-right formatting for languages like English or French.
+
+            5. **If the question does not relate to the document, do not provide any citation**."""
+
+
         index = pc.Index(os.getenv('PINECONE_INDEX'))
         # Create the prompt template
         prompt_template = ChatPromptTemplate.from_template(template)
